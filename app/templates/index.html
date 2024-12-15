@@ -57,12 +57,11 @@
       </style>
 </head>
 <body>
+
+
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
           <a class="navbar-brand mx-auto" href="#">Translator Service</a>
-          <div class="navbar-text text-light">
-            AlphaLoops TASK-Exercise
-          </div>
         </div>
       </nav>
     
@@ -70,7 +69,7 @@
         <div class="container form-container">
           <div class="form-box">
             <label for="text" class="form-label">Text to Translate</label>
-            <textarea id="text" class="form-control" rows="10"></textarea>
+            <textarea id="text-to-translate" class="form-control" rows="10" placeholder="Enter the text here....."></textarea>
           </div>
           <div class="form-box">
             <label for="languages" class="form-label">Languages</label>
@@ -78,18 +77,62 @@
             <small class="form-text text-muted">Write the languages you want to translate your text to, separated by commas.</small>
           </div>
           <div class="btn-container">
-            <button class="btn btn-primary" onclick="submitTranslate()">Translate</button>
+            <button class="btn btn-primary" onclick="submitTranslation()">Translate</button>
           </div>
         </div>
-      </div>
+        
+
       <div class = "mt-4" id ="results" style ="display:none">
         <h3>Translation Result</h3>
         <pre id ="translationResults"></pre>
         </div>
 
         <div class = "mt-4" id ="progress-container">
-            <h3>Translation in Progress ... </h3>
-            
+            <h3 id ="progress-text">Translation in Progress ... </h3>
+            <div id="progress-bar" class="progress-bar progress-bar-stripped propgress-bar-animate bg-success"></div>
         </div>
+
+        <div class="mt-[400px] flex flex-col">
+          <label for = "search-id">Check Translation Status </label>
+          <input type = "number" id ="search-id"  placeholder = "Enter the translation id"/>
+          <button onclick="checkTranslationStatus()">Check Status</button>
+          <button onclick="checkTranslationProgress()">Check Content</button>
+        </div>
+
+      </div>
+
+
+<!-- BootStarap and axiom -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  async function submitTranslation(){
+    const text = document.getElementById('text-to-translate').value;
+    const languages =  document.getElementById('languages').value;
+    if (!text || languages == 0 || languages[0]){
+      alert("Please providfe both the text and target language");
+    }
+
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    progressBar.classList.remove('bgs-success');
+    progressBar.classList.add('bg-primary');
+    progressBar.style.width = '0%';
+    progressText.textContent = 'Translation in progress';
+
+    try{
+      const response = await axios.post('localhost:8080/translate',{
+        text:text,
+        languages:languages
+      });
+
+      const taskId = response.data.task_id;
+      alert(`Task Id: `)
+    }
+catch(err){
+  comsole.log(err)
+}
+  }
+</script>
 </body>
 </html>
