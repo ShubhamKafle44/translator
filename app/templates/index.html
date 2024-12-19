@@ -98,6 +98,10 @@
           <button onclick="checkTranslationStatus()">Check Status</button>
           <button onclick="checkTranslationProgress()">Check Content</button>
         </div>
+        <div class="mt-[400px] flex flex-col">
+          <h4 >Check Translation Status </h4>
+          <pre id = "content-result"></pre>
+        </div>
 
       </div>
 
@@ -109,8 +113,9 @@
   async function submitTranslation(){
     const text = document.getElementById('text-to-translate').value;
     const languages =  document.getElementById('languages').value;
-    if (!text || languages == 0 || languages[0]){
-      alert("Please providfe both the text and target language");
+    if (!text || languages == 0 || languages[0] === ""){
+      alert("Please provide both the text and target language");
+      return;
     }
 
     const progressBar = document.getElementById('progress-bar');
@@ -127,11 +132,77 @@
       });
 
       const taskId = response.data.task_id;
-      alert(`Task Id: `)
+      alert(`Task Id:${taskId}`)
+
+
+      document.getElementById('progress-container').style.display = "block";
+      document.getElementById('results').style.display = "none";
+      document.getElementById('status-container').style.display = "none";
+      document.getElementById('content-container').style.display = "none";
+
+
+      let translationResults = null;
+      let progress = 0;
+      while(progress < 100){
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const resultResponse = await axios.get(`localhost:8000/translate${taskId}`);
+        translationResults = resultResponse.data;
+        if (translationResults == 'completed'){
+          progress = 100;
+        }
+        else{
+          progress.style.width = "50%";
+        }
+      }
+
+      progressBar.classList.remove('bg-primary');
+      progressBar.classList.add('bg-success');
+      progressBar.style.width = '100%';
+      progressText.textContent = 'Translation complete'
+
+
+      document.getElementById('translationResults').textContent = JSON.stringify(translationResults.translations);
+      document.getElementById('results').style.display = "block";
     }
-catch(err){
-  comsole.log(err)
+    catch(err){
+      console.log("error",err);
+      alert("An error occured during translation");
+  }
 }
+  async function checkTranslationStatus(){
+
+    const id = document.getElementById('search-id').value
+    try{
+      const response = await axios.get(`https://localhost:8000/translate/${id}`);
+      const translationResults = response.data;
+      document.getElementById('translationResults').textContent = JSON.stringify(translationResults.translations, null, 2)
+      document.getElementById('results').style.display='block';
+
+
+
+      document.getElementById('statusResult').textContent = `Status : ${translationResults.status}`
+      document.getElementById('status-container').style.display = 'block';
+    }
+    catch(err){
+    console.error("error fetching the translation")
+    alert("An error occured fetching the translation")
+    }
+}
+async function checkTranslationContent(){
+  const id = document.getElementById('search-id').value
+  try{
+      const response = await axios.get(`https://localhost:8000/translate/content/${id}`);
+      const contentResult = response.data;
+
+
+
+      document.getElementById('contentResult').textContent = JSON.stringify(contentResult, null, 2)
+      document.getElementById('content-container').style.display = 'block';
+}
+catch(err){
+    console.error("error fetching the translation")
+    alert("An error occured fetching the translation")
+    }
   }
 </script>
 </body>
