@@ -126,7 +126,7 @@
     progressText.textContent = 'Translation in progress';
 
     try{
-      const response = await axios.post('localhost:8080/translate',{
+      const response = await axios.post('localhost:8000/translate',{
         text:text,
         languages:languages
       });

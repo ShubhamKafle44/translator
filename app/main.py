@@ -35,7 +35,7 @@ def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.post('/translate', response_model= schemas.TaskResponse)
+@app.post('/translate')
 def translate(request: schemas.TranslationRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     task =  crud.create_translation_task(db, request.text, request.languages)
     print(task)
@@ -48,7 +48,7 @@ def get_translate(task_id: int, db: Session = Depends(get_db)):
 
     if not task:
         raise HTTPException(status_code=404, detail= "task not found")
-    return {"task_id": {task.id}, "status": task.status, "translation" : task.translation}
+    return {"task_id": {task_id}, "status": task.status, "translation" : task.translation}
 
 
 
